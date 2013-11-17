@@ -138,6 +138,9 @@ redisClient *createClient(int fd) {
  * data to the clients output buffers. If the function returns REDIS_ERR no
  * data should be appended to the output buffers. */
 int prepareClientToWrite(redisClient *c) {
+
+return REDIS_OK; // FUNK
+
     if (c->flags & REDIS_LUA_CLIENT) return REDIS_OK;
     if ((c->flags & REDIS_MASTER) &&
         !(c->flags & REDIS_MASTER_FORCE_REPLY)) return REDIS_ERR;

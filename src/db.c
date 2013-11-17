@@ -125,6 +125,8 @@ void setKey(redisDb *db, robj *key, robj *val) {
     incrRefCount(val);
     removeExpire(db,key);
     signalModifiedKey(db,key);
+
+//	printf("FUNK: %p %p %p\n", db, key, val);
 }
 
 int dbExists(redisDb *db, robj *key) {

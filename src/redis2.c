@@ -3011,11 +3011,7 @@ void redisSetProcTitle(char *title) {
 #endif
 }
 
-#ifdef __XEDIS__
 int xmain(int argc, char **argv) {
-#else
-int main(int argc, char **argv) {
-#endif
     struct timeval tv;
 
     /* We need to initialize our libraries, and the server configuration. */
@@ -3039,6 +3035,16 @@ int main(int argc, char **argv) {
         initSentinel();
     }
 
+	/* Warning the user about suspicious maxmemory setting. */
+    if (server.maxmemory > 0 && server.maxmemory < 1024*1024) {
+        redisLog(REDIS_WARNING,"WARNING: You specified a maxmemory value that is less than 1MB (current value is %llu bytes). Are you sure this is what you really want?", server.maxmemory);
+    }
+
+	return 0;
+}
+
+
+int xmain_options(int argc, char **argv) {
     if (argc >= 2) {
         int j = 1; /* First option to parse in argv[] */
         sds options = sdsempty();
@@ -3084,9 +3090,14 @@ int main(int argc, char **argv) {
         loadServerConfig(configfile,options);
         sdsfree(options);
         if (configfile) server.configfile = getAbsolutePath(configfile);
-    } else {
-        redisLog(REDIS_WARNING, "Warning: no config file specified, using the default config. In order to specify a config file use %s /path/to/%s.conf", argv[0], server.sentinel_mode ? "sentinel" : "redis");
-    }
+	}
+
+	return 0;
+}
+
+
+int xmain_noOptions(int argc, char **argv) {
+    redisLog(REDIS_WARNING, "Warning: no config file specified, using the default config. In order to specify a config file use %s /path/to/%s.conf", argv[0], server.sentinel_mode ? "sentinel" : "redis");
     if (server.daemonize) daemonize();
     initServer();
     if (server.daemonize) createPidFile();
@@ -3114,11 +3125,12 @@ int main(int argc, char **argv) {
             redisLog(REDIS_NOTICE,"The server is now ready to accept connections at %s", server.unixsocket);
     }
 
-    /* Warning the user about suspicious maxmemory setting. */
-    if (server.maxmemory > 0 && server.maxmemory < 1024*1024) {
-        redisLog(REDIS_WARNING,"WARNING: You specified a maxmemory value that is less than 1MB (current value is %llu bytes). Are you sure this is what you really want?", server.maxmemory);
-    }
+	return 0;
+}
 
+
+
+int xmain_eventLoop(void) {
     aeSetBeforeSleepProc(server.el,beforeSleep);
     aeMain(server.el);
     aeDeleteEventLoop(server.el);
