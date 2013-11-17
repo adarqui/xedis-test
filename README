@@ -8,7 +8,7 @@ If xedis actually existed, what could you do?
 1. Move extremely intense/large sets of redis operations out to it's own process, SAVE the dump.rdb to a session_xyz.rdb, and then import it into your actual redis server. In order to avoid conflicts, import could prepend a namespace or you could do it yourself in the self contained xedis processing code.
 2. Use the power of redis to persist your program's state in a format that can be loaded right into redis.
 3. Use data structure operations that are familiar and "portable" to other apps, directly within your program, without anything slowing you down.
-4. There's must, trust me.
+4. There's more, trust me.
 
 
 A quick example:
